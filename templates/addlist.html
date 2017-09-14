@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+		
+<form method="post">
+	<div class="mui-textfield mui-textfield--float-label">
+		<input type="text" name="title" value="{{ username }}">
+		<label for="username">Title</label>
+		<div class="error">
+			{{ err_user }}
+		</div>
+	</div>
+	<input class="mui-btn mui-btn--primary" type="submit" />
+</form>
+
+{% endblock %}

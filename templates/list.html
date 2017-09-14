@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="add-new-item">
+	<form method="post" action="/list/{{ list }}/create">
+		<div class="mui-textfield mui-textfield--float-label">
+			<input type="text" id="new-item-title" name="title" />
+			<label for="new-item-title" >What do we need?</label>
+		</div>
+		<input class="mui-btn mui-btn--primary" type="submit" value="Add">
+	</form>
+</section>
+<section class="shopping-list">
+	<ul class="shopping-list">
+	{% for item in items %}	
+		<li class="shopping-list__item mui-form--inline clearfix mui--divider-top{% if item.purchased %} purchased{% endif %}">
+			<form method="post" action="/list/{{ list }}/update/{{ item.key.urlsafe() }}">
+				<div class="mui-checkbox">
+					<input type="checkbox" name="toggle" value="1" {% if item.purchased %} checked {% endif %} />
+					<label class="hide" for="i_{{ item.key.id() }}">{{ item.title }}</label>
+				</div>
+				<input class="mui-btn mui-btn--flat" type="submit" value="{{ item.title }}" />
+			</form>
+			<div class="mui--pull-right">
+				<form method="post" action="/list/{{ list }}/delete/{{ item.key.urlsafe() }}">
+					<input class="mui-btn mui-btn--flat" type="submit" value="Delete" />
+				</form>
+			</div>
+		</li>
+	{% endfor %}
+	</ul>
+	<div class="mui-form--inline clearfix">
+		<div class="mui--pull-right">
+			<form method="post" action="/list/{{ list }}/purchaseall">
+				<input class="mui-btn mui-btn--flat" type="submit" value="Purchase All">
+			</form>
+		</div>
+		<div class="mui--pull-right">
+			<form method="post" action="/list/{{ list }}/hide">
+				<input class="mui-btn mui-btn--flat" type="submit" value="{% if shw_purchased %}Hide{% else %}Show{% endif %} Purchased">
+			</form>
+		</div>
+	</div>
+</section>
+<footer class="footer"></footer>
+
+{% endblock %}

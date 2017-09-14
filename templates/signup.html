@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block content %}
+		
+<form method="post">
+	<div class="mui-textfield mui-textfield--float-label">
+		<input type="text" name="username" value="{{ username }}">
+		<label for="username">Username</label>
+		<div class="error">
+			{{ err_user }}
+		</div>
+	</div>
+	<div class="mui-textfield mui-textfield--float-label">
+		<input type="password" name="password" value="{{ password }}">
+		<label for="password">Password</label>
+		<div class="error">
+			{{ err_pass }}
+		</div>
+	</div>
+	<div class="mui-textfield mui-textfield--float-label">
+		<input type="password" name="verify" value="{{ verify }}">
+		<label for="verify">Verify Password</label>
+		<div class="error">
+			{{ err_verify }}
+		</div>
+	</div>
+	<div class="mui-textfield mui-textfield--float-label">
+		<input type="email" name="email" value="{{ email }}">
+		<label for="email">Email (optional)</label>
+		<div class="error">
+			{{ err_email }}
+		</div>
+	</div>
+	<input class="mui-btn mui-btn--primary" type="submit" />
+</form>
+
+{% endblock %}
