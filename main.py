@@ -56,8 +56,8 @@ def get_items(key_string):
 	return Item.all(key)
 
 def add_item(key_string, title):
-	item = get_entity(key_string)
-	item = Item(parent = key, title = title, purchased = False, deleted = False)
+	ent = get_entity(key_string)
+	item = Item(parent = ent.key, title = title, purchased = False, deleted = False)
 	return put_entity(item)
 
 def check_item(key_string):
@@ -119,12 +119,15 @@ class Handler(webapp2.RequestHandler):
 
 
 #### Entities
-class Item(ndb.Model):
+class Base(ndb.Model):
 	deleted_date = ndb.DateTimeProperty()
-	purchased = ndb.BooleanProperty(required = True)
 	created = ndb.DateTimeProperty(auto_now_add = True)
 	deleted = ndb.BooleanProperty(required = True)
 	title = ndb.StringProperty(required = True)
+
+
+class Item(Base):
+	purchased = ndb.BooleanProperty(required = True)
 
 	@classmethod
 	def all(cls, ancestor_key):
@@ -144,12 +147,7 @@ class Item(ndb.Model):
 			item.put()
 
 
-class List(ndb.Model):
-	deleted_date = ndb.DateTimeProperty()
-	created = ndb.DateTimeProperty(auto_now_add = True)
-	deleted = ndb.BooleanProperty(required = True)
-	title = ndb.StringProperty(required = True)
-
+class List(Base):
 	@classmethod
 	def all(cls, ancestor_key):
 		return cls.query(ancestor = ancestor_key).order(-cls.created)
@@ -163,18 +161,46 @@ class HomePage(Handler):
 			self.render("index.html", lists = get_lists(self.user))
 
 
+
 class ListPage(Handler):
-	def get(self, list_string):
+	def get(self, list_string, *args):
 		if self.user:
-			shw_purchased = self.read_shw_purchased_cookie("shoppr_shw_purchased")
-			items = get_items(list_string)
-
-			if not shw_purchased:
-				items = items.filter(Item.purchased == False)
-
-			self.render("list.html", list = list_string, items = items, shw_purchased = shw_purchased)
+			self._render(list_string)
 		else:
 			self.redirect("/login")
+
+	def post(self, list_key):
+		item_key = cgi.escape(self.request.get("item_key"))
+		method = cgi.escape(self.request.get("_method"))
+		title = cgi.escape(self.request.get("title"))
+
+		# replicate HTTP(S) methods
+		if method == "put":
+			self.checkItem(item_key)
+		elif method == "post":
+			self.addItem(list_key, title)
+		elif method == "delete":
+			self.deleteItem(item_key)
+
+		self._render(list_key)
+
+	def addItem(self, list_key, title):
+		add_item(list_key, title)
+
+	def deleteItem(self, item_key):
+		delete_item(item_key)
+
+	def checkItem(self, item_key):
+		check_item(item_key)
+
+	def _render(self, list_key):
+		shw_purchased = self.read_shw_purchased_cookie("shoppr_shw_purchased")
+		items = get_items(list_key)
+
+		if not shw_purchased:
+			items = items.filter(Item.purchased == False)
+
+		self.render("list.html", items = items, list = list_key, shw_purchased = shw_purchased)
 
 
 class Hide(Handler):
@@ -187,26 +213,6 @@ class Hide(Handler):
 			shw_purchased = 0
 
 		self.set_shw_purchased_cookie(shw_purchased)
-		self.redirect("/list/"+list_string)	
-
-
-class AddItem(Handler):
-	def post(self, list_string):
-		title = cgi.escape(self.request.get("title"))
-		add_item(list_string, title)
-		self.redirect("/list/"+list_string)
-
-
-class CheckItem(Handler):
-	def post(self, list_string, item_string):
-		logging.info(list_string, item_string)
-		check_item(item_string)
-		self.redirect("/list/"+list_string)
-
-
-class DeleteItem(Handler):
-	def post(self, list_string, item_string):
-		delete_item(item_string)
 		self.redirect("/list/"+list_string)	
 
 
@@ -364,11 +370,8 @@ def age_get(key):
 RE_URL = '([a-zA-Z0-9_\-\s]+)'
 
 app = webapp2.WSGIApplication([ ('/', HomePage), 
-								("/createlist", AddList),
+								#("/createlist", AddList),
 								("/list/"+RE_URL, ListPage),
-								("/list/"+RE_URL+"/create", AddItem),
-								("/list/"+RE_URL+"/update/"+RE_URL, CheckItem),
-								("/list/"+RE_URL+"/delete/"+RE_URL, DeleteItem),
 								("/list/"+RE_URL+"/purchaseall", PurchaseAll),
 								("/list/"+RE_URL+"/hide", Hide),
 								('/signup', Signup), 

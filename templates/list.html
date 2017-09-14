@@ -2,28 +2,33 @@
 
 {% block content %}
 <section class="add-new-item">
-	<form method="post" action="/list/{{ list }}/create">
+	<form method="post" action="/list/{{ list }}">
 		<div class="mui-textfield mui-textfield--float-label">
 			<input type="text" id="new-item-title" name="title" />
 			<label for="new-item-title" >What do we need?</label>
 		</div>
-		<input class="mui-btn mui-btn--primary" type="submit" value="Add">
+		<input class="mui-btn mui-btn--primary" type="submit" value="Add" />
+		<input type="hidden" name="_method" value="post" />
 	</form>
 </section>
 <section class="shopping-list">
 	<ul class="shopping-list">
 	{% for item in items %}	
 		<li class="shopping-list__item mui-form--inline clearfix mui--divider-top{% if item.purchased %} purchased{% endif %}">
-			<form method="post" action="/list/{{ list }}/update/{{ item.key.urlsafe() }}">
+			<form method="post" action="/list/{{ list }}">
 				<div class="mui-checkbox">
 					<input type="checkbox" name="toggle" value="1" {% if item.purchased %} checked {% endif %} />
 					<label class="hide" for="i_{{ item.key.id() }}">{{ item.title }}</label>
+					<input type="hidden" name="_method" value="put" />
+					<input type="hidden" name="item_key" value="{{ item.key.urlsafe() }}" />
 				</div>
 				<input class="mui-btn mui-btn--flat" type="submit" value="{{ item.title }}" />
 			</form>
 			<div class="mui--pull-right">
-				<form method="post" action="/list/{{ list }}/delete/{{ item.key.urlsafe() }}">
+				<form method="post" action="/list/{{ list }}">
 					<input class="mui-btn mui-btn--flat" type="submit" value="Delete" />
+					<input type="hidden" name="item_key" value="{{ item.key.urlsafe() }}" />
+					<input type="hidden" name="_method" value="delete" />
 				</form>
 			</div>
 		</li>
