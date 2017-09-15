@@ -60,9 +60,12 @@ def add_item(key_string, title):
 	item = Item(parent = ent.key, title = title, purchased = False, deleted = False)
 	return put_entity(item)
 
-def check_item(key_string):
+def check_item(key_string, toggle = False):
 	item = get_entity(key_string)
-	item.purchased = False if item.purchased else True
+	if toggle and item.purchased:
+		item.purchased = False
+	else:
+		item.purchased = True
 	return put_entity(item)
 
 def delete_item(key_string):
@@ -191,7 +194,7 @@ class ListPage(Handler):
 		delete_item(item_key)
 
 	def checkItem(self, item_key):
-		check_item(item_key)
+		check_item(item_key, True)
 
 	def _render(self, list_key):
 		shw_purchased = self.read_shw_purchased_cookie("shoppr_shw_purchased")
@@ -217,11 +220,12 @@ class Hide(Handler):
 
 
 class PurchaseAll(Handler):
-	def post(self, list_string):
-		for item in get_items(list_string):
-			item.purchased = True
-			item.put()
-		self.redirect("/list/"+list_string)
+	def post(self, list_key):
+		# for item in get_items(list_key):
+		# 	#check_item(item.key)
+		# 	logging.info(item.key)
+		# self.redirect("/list/"+list_string)
+		pass
 
 
 class AddList(Handler):
