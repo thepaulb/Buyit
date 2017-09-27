@@ -6,7 +6,7 @@
 	<ul class="mui-list--unstyled">
 	{% for list in lists %}	
 		<li class="mui-form--inline clearfix">
-			<a href="/list/{{ list.key.urlsafe() }}">{{ list.title }}</a>
+			<a href="/list/{{ list.key.urlsafe() }}" class="mui-btn mui-btn--flat">{{ list.title }}</a>
 			<span class="mui--pull-right">
 				<form method="post" action="/">
 					<input class="mui-btn mui-btn--flat" type="submit" value="Delete" />
