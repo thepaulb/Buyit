@@ -7,12 +7,19 @@
 	{% for list in lists %}	
 		<li class="mui-form--inline clearfix">
 			<a href="/list/{{ list.key.urlsafe() }}">{{ list.title }}</a>
+			<span class="mui--pull-right">
+				<form method="post" action="/">
+					<input class="mui-btn mui-btn--flat" type="submit" value="Delete" />
+					<input type="hidden" name="list_key" value="{{ list.key.urlsafe() }}" />
+					<input type="hidden" name="_method" value="delete" />
+				</form>
+			</span>
 		</li>
 	{% endfor %}
 	</ul>
 	<div class="mui-form--inline clearfix">
 		<div class="mui--pull-right">
-			<a href="/createlist" class="mui-btn mui-btn--primary">Add List</a>
+			<a href="/create" class="mui-btn mui-btn--primary">Add List</a>
 		</div>
 	</div>
 </section>

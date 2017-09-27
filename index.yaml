@@ -36,3 +36,10 @@ indexes:
   properties:
   - name: created
     direction: desc
+
+- kind: List
+  ancestor: yes
+  properties:
+  - name: deleted
+  - name: created
+    direction: desc

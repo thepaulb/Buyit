@@ -24,20 +24,21 @@
 				</div>
 				<input class="mui-btn mui-btn--flat" type="submit" value="{{ item.title }}" />
 			</form>
-			<div class="mui--pull-right">
+			<span class="mui--pull-right">
 				<form method="post" action="/list/{{ list }}">
 					<input class="mui-btn mui-btn--flat" type="submit" value="Delete" />
 					<input type="hidden" name="item_key" value="{{ item.key.urlsafe() }}" />
 					<input type="hidden" name="_method" value="delete" />
 				</form>
-			</div>
+			</span>
 		</li>
 	{% endfor %}
 	</ul>
 	<div class="mui-form--inline clearfix">
 		<div class="mui--pull-right">
-			<form method="post" action="/list/{{ list }}/purchaseall">
+			<form method="post" action="/list/{{ list }}">
 				<input class="mui-btn mui-btn--flat" type="submit" value="Purchase All">
+				<input type="hidden" name="_method" value="check_all" />
 			</form>
 		</div>
 		<div class="mui--pull-right">

@@ -40,12 +40,9 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(templates), auto
 #### utils functions
 
 def get_entity(key_string): # by key string
+	logging.info(key_string)
 	key = ndb.Key(urlsafe = key_string)
 	return key.get()
-
-def put_entity(item):
-	item.put()
-	return item.key.id()
 
 def render_str(template, **params):
 	t = jinja_env.get_template(template)
@@ -58,7 +55,7 @@ def get_items(key_string):
 def add_item(key_string, title):
 	ent = get_entity(key_string)
 	item = Item(parent = ent.key, title = title, purchased = False, deleted = False)
-	return put_entity(item)
+	return item.put()
 
 def check_item(key_string, toggle = False):
 	item = get_entity(key_string)
@@ -66,20 +63,32 @@ def check_item(key_string, toggle = False):
 		item.purchased = False
 	else:
 		item.purchased = True
-	return put_entity(item)
+	return item.put()
+
+def check_all(list_key):
+	items = get_items(list_key)
+	if not len(list(items)): return
+	for item in items:
+		if not item.deleted and not item.purchased:
+			item.purchased = True
+			item.put()
 
 def delete_item(key_string):
+	# item being an Entity, rather than list item
 	item = get_entity(key_string)
 	item.deleted = True # soft delete
 	item.deleted_date = datetime.now()
-	return put_entity(item)
+	return item.put()
 
 def get_lists(owner):
-	return List.all(owner.key)
+	return List.all(owner.key).filter(List.deleted == False)
 
 def add_list(title, owner):
 	l = List(parent = owner, title = title, deleted = False)
-	return put_entity(l)
+	return l.put()
+
+def delete_list(key_string):
+	return delete_item(key_string)
 
 
 #### Base handler class
@@ -143,12 +152,6 @@ class Item(Base):
 			item.purchased = False
 			item.put()
 
-	@classmethod
-	def toggle(cls, ancestor_key):
-		for item in cls.all(ancestor_key):
-			item.purchased = True
-			item.put()
-
 
 class List(Base):
 	@classmethod
@@ -162,7 +165,21 @@ class HomePage(Handler):
 	def get(self):
 		if self.user:
 			self.render("index.html", lists = get_lists(self.user))
+		else:
+			self.redirect("/login")
 
+	def post(self):
+		list_key = cgi.escape(self.request.get("item_key"))
+		method = cgi.escape(self.request.get("_method"))
+		# replicate HTTP(S) methods
+		if method == "delete":
+			self.deleteList(list_key)
+
+		self.render("index.html", lists = get_lists(self.user))
+
+	def deleteList(self, list_key):
+		logging.info(list_key)
+		delete_list(list_key)
 
 
 class ListPage(Handler):
@@ -184,6 +201,8 @@ class ListPage(Handler):
 			self.addItem(list_key, title)
 		elif method == "delete":
 			self.deleteItem(item_key)
+		elif method == "check_all":
+			self.checkAll(list_key)
 
 		self._render(list_key)
 
@@ -196,7 +215,12 @@ class ListPage(Handler):
 	def checkItem(self, item_key):
 		check_item(item_key, True)
 
+	def checkAll(self, list_key):
+		check_all(list_key)
+
+
 	def _render(self, list_key):
+		enable_purchase_all = True
 		shw_purchased = self.read_shw_purchased_cookie("shoppr_shw_purchased")
 		items = get_items(list_key)
 
@@ -219,15 +243,6 @@ class Hide(Handler):
 		self.redirect("/list/"+list_string)	
 
 
-class PurchaseAll(Handler):
-	def post(self, list_key):
-		# for item in get_items(list_key):
-		# 	#check_item(item.key)
-		# 	logging.info(item.key)
-		# self.redirect("/list/"+list_string)
-		pass
-
-
 class AddList(Handler):
 	def get(self):
 		self.render("addlist.html")
@@ -236,7 +251,6 @@ class AddList(Handler):
 		title = cgi.escape(self.request.get("title"))
 		add_list(title, self.user.key)
 		self.redirect("/")
-
 
 
 #### User management 
@@ -374,9 +388,8 @@ def age_get(key):
 RE_URL = '([a-zA-Z0-9_\-\s]+)'
 
 app = webapp2.WSGIApplication([ ('/', HomePage), 
-								#("/createlist", AddList),
+								("/create", AddList),
 								("/list/"+RE_URL, ListPage),
-								("/list/"+RE_URL+"/purchaseall", PurchaseAll),
 								("/list/"+RE_URL+"/hide", Hide),
 								('/signup', Signup), 
 								('/login', Login), 
