@@ -111,4 +111,6 @@ input::input-placeholder {
 
 .mui-checkbox, .mui-radio {
 	display: inline-block;
+	margin-top: 0;
+	margin-bottom: 8px !important;
 }
