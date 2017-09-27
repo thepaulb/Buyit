@@ -19,10 +19,10 @@
 				<div class="mui-checkbox">
 					<input type="checkbox" name="toggle" value="1" {% if item.purchased %} checked {% endif %} />
 					<label class="hide" for="i_{{ item.key.id() }}">{{ item.title }}</label>
-					<input type="hidden" name="_method" value="put" />
-					<input type="hidden" name="item_key" value="{{ item.key.urlsafe() }}" />
 				</div>
 				<input class="mui-btn mui-btn--flat" type="submit" value="{{ item.title }}" />
+				<input type="hidden" name="_method" value="put" />
+				<input type="hidden" name="item_key" value="{{ item.key.urlsafe() }}" />
 			</form>
 			<span class="mui--pull-right">
 				<form method="post" action="/list/{{ list }}">
