@@ -40,7 +40,6 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(templates), auto
 #### utils functions
 
 def get_entity(key_string): # by key string
-	logging.info(key_string)
 	key = ndb.Key(urlsafe = key_string)
 	return key.get()
 
@@ -81,7 +80,7 @@ def delete_item(key_string):
 	return item.put()
 
 def get_lists(owner):
-	return List.all(owner.key).filter(List.deleted == False)
+	return List.all(owner.key).filter(List.deleted == False).order(-List.created)
 
 def add_list(title, owner):
 	l = List(parent = owner, title = title, deleted = False)
@@ -169,7 +168,7 @@ class HomePage(Handler):
 			self.redirect("/login")
 
 	def post(self):
-		list_key = cgi.escape(self.request.get("item_key"))
+		list_key = cgi.escape(self.request.get("list_key"))
 		method = cgi.escape(self.request.get("_method"))
 		# replicate HTTP(S) methods
 		if method == "delete":
@@ -178,7 +177,7 @@ class HomePage(Handler):
 		self.render("index.html", lists = get_lists(self.user))
 
 	def deleteList(self, list_key):
-		logging.info(list_key)
+		logging.info("deleteList(): "+list_key)
 		delete_list(list_key)
 
 

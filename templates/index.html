@@ -2,10 +2,10 @@
 
 {% block content %}
 <section>
-	<h6>Your Lists</h6>
+	<h2>Your Lists</h2>
 	<ul class="mui-list--unstyled">
 	{% for list in lists %}	
-		<li class="mui-form--inline clearfix">
+		<li class="mui-form--inline mui--divider-top clearfix">
 			<a href="/list/{{ list.key.urlsafe() }}" class="mui-btn mui-btn--flat">{{ list.title }}</a>
 			<span class="mui--pull-right">
 				<form method="post" action="/">
