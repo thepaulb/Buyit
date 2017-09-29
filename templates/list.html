@@ -3,7 +3,7 @@
 {% block content %}
 <h2>{{ title }}</h2>
 <section class="add-new-item">
-	<form method="post" action="/list/{{ list }}">
+	<form method="post" action="/list/{{ list_key }}">
 		<div class="mui-textfield mui-textfield--float-label">
 			<input type="text" id="new-item-title" name="title" />
 			<label for="new-item-title" >What do we need?</label>
@@ -16,7 +16,7 @@
 	<ul class="shopping-list">
 	{% for item in items %}	
 		<li class="shopping-list__item mui-form--inline clearfix mui--divider-top{% if item.purchased %} purchased{% endif %}">
-			<form method="post" action="/list/{{ list }}">
+			<form method="post" action="/list/{{ list_key }}">
 				<div class="mui-checkbox">
 					<input type="checkbox" name="toggle" value="1" {% if item.purchased %} checked {% endif %} />
 					<label class="hide" for="i_{{ item.key.id() }}">{{ item.title }}</label>
@@ -26,7 +26,7 @@
 				<input type="hidden" name="item_key" value="{{ item.key.urlsafe() }}" />
 			</form>
 			<span class="mui--pull-right">
-				<form method="post" action="/list/{{ list }}">
+				<form method="post" action="/list/{{ list_key }}">
 					<input class="mui-btn mui-btn--flat" type="submit" value="Delete" />
 					<input type="hidden" name="item_key" value="{{ item.key.urlsafe() }}" />
 					<input type="hidden" name="_method" value="delete" />
@@ -37,13 +37,13 @@
 	</ul>
 	<div class="mui-form--inline clearfix">
 		<div class="mui--pull-right">
-			<form method="post" action="/list/{{ list }}">
+			<form method="post" action="/list/{{ list_key }}">
 				<input class="mui-btn mui-btn--flat" type="submit" value="Purchase All">
 				<input type="hidden" name="_method" value="check_all" />
 			</form>
 		</div>
 		<div class="mui--pull-right">
-			<form method="post" action="/list/{{ list }}/hide">
+			<form method="post" action="/list/{{ list_key }}/hide">
 				<input class="mui-btn mui-btn--flat" type="submit" value="{% if shw_purchased %}Hide{% else %}Show{% endif %} Purchased">
 			</form>
 		</div>

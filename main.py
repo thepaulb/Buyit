@@ -227,7 +227,7 @@ class ListPage(Handler):
 			items = items.filter(Item.purchased == False)
 		logging.info(get_entity(list_key))
 		list = get_entity(list_key)
-		self.render("list.html", items = items, title = list.title, shw_purchased = shw_purchased)
+		self.render("list.html", items = items, list = list, list_key = list_key, shw_purchased = shw_purchased)
 
 
 class Hide(Handler):
