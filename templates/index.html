@@ -1,28 +1,50 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section>
-	<h2>Your Lists</h2>
-	<ul class="mui-list--unstyled">
-	{% for list in lists %}	
-		<li class="mui-form--inline mui--divider-top clearfix">
-			<a href="/list/{{ list.key.urlsafe() }}" class="mui-btn mui-btn--flat">{{ list.title }}</a>
-			<span class="mui--pull-right">
+	{% if msg: %}	
+	<section class="msg">
+		<p>{{ msg }}</p>
+	</section>
+	{% endif %}
+	{% if invites: %}
+	<section>
+		<h2>Pending Invites</h2>
+		<ul class="mui-list--unstyled">
+		{% for inv in invites %}	
+			<li class="mui-form--inline mui--divider-top clearfix">
+				<span><strong>{{ inv.get_owner_name() }}</strong> invited you to: <i>{{ inv.title }}</i></span>
 				<form method="post" action="/">
-					<input class="mui-btn mui-btn--flat" type="submit" value="Delete" />
-					<input type="hidden" name="list_key" value="{{ list.key.urlsafe() }}" />
-					<input type="hidden" name="_method" value="delete" />
+					<input class="mui-btn mui-btn--flat" type="submit" value="Accept" />
+					<input type="hidden" name="invite_key" value="{{ inv.key.urlsafe() }}" />
+					<input type="hidden" name="_method" value="put" />
 				</form>
-			</span>
-		</li>
-	{% endfor %}
-	</ul>
-	<div class="mui-form--inline clearfix">
-		<div class="mui--pull-right">
-			<a href="/create" class="mui-btn mui-btn--primary">Add List</a>
+			</li>
+		{% endfor %}
+		</ul>
+	</section>
+	{% endif %}
+	<section>
+		<h2>Your Lists</h2>
+		<ul class="mui-list--unstyled">
+		{% for list in lists %}	
+			<li class="mui-form--inline mui--divider-top clearfix">
+				<a href="/list/{{ list.key.urlsafe() }}" class="mui-btn mui-btn--flat">{{ list.title }}</a>
+				<span class="mui--pull-right">
+					<form method="post" action="/">
+						<input class="mui-btn mui-btn--flat" type="submit" value="Delete" />
+						<input type="hidden" name="list_key" value="{{ list.key.urlsafe() }}" />
+						<input type="hidden" name="_method" value="delete" />
+					</form>
+				</span>
+			</li>
+		{% endfor %}
+		</ul>
+		<div class="mui-form--inline clearfix">
+			<div class="mui--pull-right">
+				<a href="/create" class="mui-btn mui-btn--primary">Add List</a>
+			</div>
 		</div>
-	</div>
-</section>
-<footer class="footer"></footer>
+	</section>
+	<footer class="footer"></footer>
 
 {% endblock %}

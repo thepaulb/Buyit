@@ -46,6 +46,9 @@
 			<form method="post" action="/list/{{ list_key }}/hide">
 				<input class="mui-btn mui-btn--flat" type="submit" value="{% if shw_purchased %}Hide{% else %}Show{% endif %} Purchased">
 			</form>
+			<div class="mui--pull-left">
+				<a href="/list/{{ list_key }}/share" class="mui-btn mui-btn--flat">Invite</a>
+			</div>
 		</div>
 	</div>
 </section>

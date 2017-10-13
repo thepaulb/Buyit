@@ -41,7 +41,17 @@ jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(templates), auto
 
 def get_entity(key_string): # by key string
 	key = ndb.Key(urlsafe = key_string)
+	# logging.info("get_entity()")
+	# logging.info(key)
+	# logging.info(key.get())
 	return key.get()
+
+def get_entity2(key_string): # rework of the above
+	key = ndb.Key(urlsafe = key_string)
+	# logging.info("get_entity()")
+	# logging.info(key)
+	# logging.info(key.get())
+	return key.get(), key
 
 def render_str(template, **params):
 	t = jinja_env.get_template(template)
@@ -88,6 +98,11 @@ def add_list(title, owner):
 
 def delete_list(key_string):
 	return delete_item(key_string)
+
+def accept_invite(invite_key):
+	invite, key = get_entity2(invite_key)
+	invite.status = "accepted"
+	return invite.put()
 
 
 #### Base handler class
@@ -158,27 +173,57 @@ class List(Base):
 		return cls.query(ancestor = ancestor_key).order(-cls.created)
 
 
+class Guest(ndb.Model):
+	created = ndb.DateTimeProperty(auto_now_add = True)
+	# status values invited, member
+	status = ndb.StringProperty(required = True)
+	guest = ndb.StringProperty(required = True)
+	title = ndb.StringProperty(required = True)
+	host = ndb.StringProperty(required = True) # list owner
+
+
+
+	def get_owner_name(self):
+		# double messy, however ..
+		return self.key.parent().get().key.parent().get().name
+
+
 #### App
 
 class HomePage(Handler):
 	def get(self):
+		msg = None
 		if self.user:
-			self.render("index.html", lists = get_lists(self.user))
+			q = Guest.query()
+			if q:
+				invites = []
+				for invite in q:
+					if invite.guest == self.user.key.urlsafe():
+						invites.append(invite)
+						logging.info(invite)
+			self.render("index.html", lists = get_lists(self.user), invites = invites, msg = msg)
 		else:
 			self.redirect("/login")
 
 	def post(self):
-		list_key = cgi.escape(self.request.get("list_key"))
+		msg = None
 		method = cgi.escape(self.request.get("_method"))
 		# replicate HTTP(S) methods
 		if method == "delete":
-			self.deleteList(list_key)
+			key = cgi.escape(self.request.get("list_key"))
+			self.deleteList(key)
+		if method == "put":
+			key = cgi.escape(self.request.get("invite_key"))
+			msg = "invitation excepted!"
+			self.acceptInvite(key)
 
-		self.render("index.html", lists = get_lists(self.user))
+		self.render("index.html", lists = get_lists(self.user), msg = msg)
 
 	def deleteList(self, list_key):
-		logging.info("deleteList(): "+list_key)
 		delete_list(list_key)
+
+	def acceptInvite(self, invite_key):
+		accept_invite(invite_key)
 
 
 class ListPage(Handler):
@@ -225,13 +270,13 @@ class ListPage(Handler):
 
 		if not shw_purchased:
 			items = items.filter(Item.purchased == False)
-		logging.info(get_entity(list_key))
+		
 		list = get_entity(list_key)
 		self.render("list.html", items = items, list = list, list_key = list_key, shw_purchased = shw_purchased)
 
 
 class Hide(Handler):
-	def post(self, list_string):
+	def post(self, list_key):
 		shw_purchased = self.read_shw_purchased_cookie("shoppr_shw_purchased")
 
 		if shw_purchased is not None:
@@ -241,6 +286,35 @@ class Hide(Handler):
 
 		self.set_shw_purchased_cookie(shw_purchased)
 		self.redirect("/list/"+list_string)	
+
+
+class Share(Handler):
+	def get(self, list_key):
+		users = []
+		listing, listing_key = get_entity2(list_key)
+		# get all guests for this list
+		guests = Guest.query(ancestor = listing_key)
+		for user in User.query():
+			# exclude current user from list ..
+			if user.key.urlsafe() != self.user.key.urlsafe():
+				# check if user has been invited
+				invited = False
+				for guest in guests:
+					u, k = get_entity2(guest.guest)
+					if user.name == u.name:
+						invited = True	
+						break
+				if not invited:
+					users.append(user)
+		self.render("share.html", users = users, list_key = list_key)
+
+	def post(self, list_key):
+		user_key = cgi.escape(self.request.get("user_key"))
+		listing = get_entity(list_key) 
+		user = get_entity(user_key) 
+		guest = Guest(parent = listing.key, guest = user_key, status = "invited", host = self.user.key.urlsafe(), title = listing.title)
+		guest.put()
+		self.render("invited.html", name = user.name)
 
 
 class AddList(Handler):
@@ -391,6 +465,7 @@ app = webapp2.WSGIApplication([ ('/', HomePage),
 								("/create", AddList),
 								("/list/"+RE_URL, ListPage),
 								("/list/"+RE_URL+"/hide", Hide),
+								("/list/"+RE_URL+"/share", Share),
 								('/signup', Signup), 
 								('/login', Login), 
 								('/logout', Logout)], debug=True)
