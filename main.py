@@ -214,7 +214,7 @@ class HomePage(Handler):
 			self.deleteList(key)
 		if method == "put":
 			key = cgi.escape(self.request.get("invite_key"))
-			msg = "invitation excepted!"
+			msg = "Invitation excepted!"
 			self.acceptInvite(key)
 
 		self.render("index.html", lists = get_lists(self.user), msg = msg)
@@ -285,7 +285,7 @@ class Hide(Handler):
 			shw_purchased = 0
 
 		self.set_shw_purchased_cookie(shw_purchased)
-		self.redirect("/list/"+list_string)	
+		self.redirect("/list/"+list_key)	
 
 
 class Share(Handler):
