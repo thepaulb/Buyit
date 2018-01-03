@@ -237,12 +237,20 @@ class ListPage(Handler):
 		item_key = cgi.escape(self.request.get("item_key"))
 		method = cgi.escape(self.request.get("_method"))
 		title = cgi.escape(self.request.get("title"))
+        
+		logging.info(["title:", title.split("\r")])
 
 		# replicate HTTP(S) methods
 		if method == "put":
 			self.checkItem(item_key)
 		elif method == "post":
-			self.addItem(list_key, title)
+			multi = title.split("\r")
+			if multi:
+			    for title in multi:
+					if title != "\n":
+					    self.addItem(list_key, title)
+			else:
+			    self.addItem(list_key, title)
 		elif method == "delete":
 			self.deleteItem(item_key)
 		elif method == "check_all":

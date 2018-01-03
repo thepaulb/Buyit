@@ -5,9 +5,9 @@
 <section class="add-new-item">
 	<form method="post" action="/list/{{ list_key }}">
 		<div class="mui-textfield mui-textfield--float-label">
-			<input type="text" id="new-item-title" name="title" />
-			<label for="new-item-title" >What do we need?</label>
-		</div>
+		    <textarea id="new-item-title" name="title"></textarea>
+		    <label for="new-item-title">What do we need?</label>
+		  </div>
 		<input class="mui-btn mui-btn--primary" type="submit" value="Add" />
 		<input type="hidden" name="_method" value="post" />
 	</form>
