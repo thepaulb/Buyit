@@ -246,6 +246,7 @@ class ListPage(Handler):
 		elif method == "post":
 			multi = title.split("\r")
 			if multi:
+			    multi.reverse()
 			    for title in multi:
 					if title != "\n":
 					    self.addItem(list_key, title)
@@ -325,7 +326,7 @@ class Share(Handler):
 		self.render("invited.html", name = user.name)
 
 
-class AddList(Handler):
+class AddList(Handler): 
 	def get(self):
 		self.render("addlist.html")
 
