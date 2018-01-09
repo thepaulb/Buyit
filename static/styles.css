@@ -28,6 +28,7 @@ h1 {
 	font-family: 'Muli', sans-serif;
 	color: rgba(255, 82, 82, 0.6);
 	text-align: center;
+	margin-top: 10px;
 }
 
 ul, li {
@@ -38,7 +39,7 @@ ul, li {
 
 [role=main] {
 	background: #fff;
-	padding: 8px;
+	padding: 0 8px;
 }
 
 input::-webkit-input-placeholder {
@@ -112,4 +113,12 @@ input::input-placeholder {
 	display: inline-block;
 	margin-top: 0;
 	margin-bottom: 8px !important; 
+}
+
+.mui-textfield>textarea {
+	min-height: 96px;
+}
+
+.btn-group {
+	display: inline-flex;
 }

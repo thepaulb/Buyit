@@ -29,12 +29,13 @@
 		{% for list in lists %}	
 			<li class="mui-form--inline mui--divider-top clearfix">
 				<a href="/list/{{ list.key.urlsafe() }}" class="mui-btn mui-btn--flat">{{ list.title }}</a>
-				<span class="mui--pull-right">
+				<span class="mui--pull-right btn-group">
 					<form method="post" action="/">
 						<input class="mui-btn mui-btn--flat" type="submit" value="Delete" />
 						<input type="hidden" name="list_key" value="{{ list.key.urlsafe() }}" />
 						<input type="hidden" name="_method" value="delete" />
 					</form>
+				<a href="/list/{{ list.key.urlsafe() }}/share" class="mui-btn mui-btn--flat">Invite</a>
 				</span>
 			</li>
 		{% endfor %}

@@ -1,7 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+{% if title: %}	
 <h2>{{ title }}</h2>
+{% endif %}	
 <section class="add-new-item">
 	<form method="post" action="/list/{{ list_key }}">
 		<div class="mui-textfield mui-textfield--float-label">
@@ -36,20 +38,13 @@
 	{% endfor %}
 	</ul>
 	<div class="mui-form--inline clearfix">
-		<div class="mui--pull-right">
-			<form method="post" action="/list/{{ list_key }}">
-				<input class="mui-btn mui-btn--flat" type="submit" value="Purchase All">
-				<input type="hidden" name="_method" value="check_all" />
-			</form>
-		</div>
-		<div class="mui--pull-right">
-			<form method="post" action="/list/{{ list_key }}/hide">
-				<input class="mui-btn mui-btn--flat" type="submit" value="{% if shw_purchased %}Hide{% else %}Show{% endif %} Purchased">
-			</form>
-			<div class="mui--pull-left">
-				<a href="/list/{{ list_key }}/share" class="mui-btn mui-btn--flat">Invite</a>
-			</div>
-		</div>
+		<form method="post" action="/list/{{ list_key }}">
+			<input class="mui-btn mui-btn--flat" type="submit" value="Purchase All">
+			<input type="hidden" name="_method" value="check_all" />
+		</form>
+		<form method="post" action="/list/{{ list_key }}/hide">
+			<input class="mui-btn mui-btn--flat" type="submit" value="{% if shw_purchased %}Hide{% else %}Show{% endif %} Purchased">
+		</form>
 	</div>
 </section>
 <footer class="footer"></footer>
